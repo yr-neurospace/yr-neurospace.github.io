@@ -184,6 +184,10 @@ window.Quarto = {
     <a class="dropdown-item" href="../../../../../WebsiteQMDs/git.html">
  <span class="dropdown-text">Git</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../../../WebsiteQMDs/learning.html">
+ <span class="dropdown-text">Learning</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item">
@@ -265,7 +269,7 @@ window.Quarto = {
 <p><span class="math display">\[
 x_{n+1} = \frac{1}{2} (x_n + \frac{A}{x_n}), A &gt; 0, x_1 &gt; 0
 \]</span></p>
-<div id="298ad50f" class="cell" data-execution_count="1">
+<div id="4a0b868e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">square_root</span>(x<span class="op">::</span><span class="dt">Real</span>, iterN<span class="op">::</span><span class="dt">Real </span><span class="op">=</span> <span class="fl">100</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="fl">0</span> <span class="fu">throw</span>(<span class="fu">DomainError</span>(<span class="st">"x must be a positive number!"</span>)) <span class="cf">end</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    try</span>
