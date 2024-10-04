@@ -1,0 +1,32 @@
+[
+  {
+    "listing": "/Blogs/Computer/index.html",
+    "items": [
+      "/Blogs/Computer/posts/Programming/Git/git_syntax_basics/index.html",
+      "/Blogs/Computer/posts/Programming/Julia/julia_resource_list/index.html",
+      "/Blogs/Computer/posts/Programming/Julia/julia_syntax_basics/index.html",
+      "/Blogs/Computer/posts/Programming/R/r_resource_list/index.html"
+    ]
+  },
+  {
+    "listing": "/Blogs/Mathematics/index.html",
+    "items": [
+      "/Blogs/Mathematics/posts/Probability and Statistics/probability_and_statistics_with_julia/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/probability_and_statistics_misc/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/statistical_inference_concepts_of_binomial_distribution/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/logistic_function/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/lorenz_curve_and_gini_index/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/binomial_distribution_approximatrions/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/trigonometric_functions/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/p-p_plot_and_q-q_plot/index.html",
+      "/Blogs/Mathematics/posts/Probability and Statistics/roc_and_auc/index.html"
+    ]
+  },
+  {
+    "listing": "/Blogs/Bioinformatics/index.html",
+    "items": [
+      "/Blogs/Bioinformatics/posts/bulk RNA-seq/identify_housekeeping_genes/index.html",
+      "/Blogs/Bioinformatics/posts/bulk RNA-seq/bulk_rna-seq_pseudotime_analysis/index.html"
+    ]
+  }
+]
