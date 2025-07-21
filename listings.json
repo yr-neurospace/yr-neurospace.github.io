@@ -10,6 +10,9 @@
   {
     "listing": "/Blogs/Bioinformatics/index.html",
     "items": [
+      "/Blogs/Bioinformatics/posts/Genomics/gene_tree_construction/index.html",
+      "/Blogs/Bioinformatics/posts/Genomics/Sequence_alignments/index.html",
+      "/Blogs/Bioinformatics/posts/Genomics/identify_orthologous_genes/index.html",
       "/Blogs/Bioinformatics/posts/Misc/bioinformatics_software_installation_guides/index.html",
       "/Blogs/Bioinformatics/posts/bulk proteomics/proteomics-related_concepts/index.html",
       "/Blogs/Bioinformatics/posts/scRNA-seq/concepts_of_single_cell_sequencing/index.html",

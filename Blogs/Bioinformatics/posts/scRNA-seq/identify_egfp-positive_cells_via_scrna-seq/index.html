@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -135,7 +169,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page">
+    <div class="quarto-title column-page-right">
       <h1 class="title">Identify EGFP-positive cells via scRNA-Seq</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">egfp</div>
@@ -148,7 +182,7 @@ ul.task-list li input[type="checkbox"] {
   </div>
     
   
-  <div class="quarto-title-meta column-page">
+  <div class="quarto-title-meta column-page-right">
 
       <div>
       <div class="quarto-title-meta-heading">Author</div>
@@ -167,7 +201,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date-modified">June 29, 2025</p>
+        <p class="date-modified">July 5, 2025</p>
       </div>
     </div>
       
@@ -176,20 +210,485 @@ ul.task-list li input[type="checkbox"] {
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
-  
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#construct-the-mm39-reference" id="toc-construct-the-mm39-reference" class="nav-link" data-scroll-target="#construct-the-mm39-reference"><span class="header-section-number">2</span> Construct the mm39 reference</a></li>
+  <li><a href="#quantify-scrna-seq-reads" id="toc-quantify-scrna-seq-reads" class="nav-link" data-scroll-target="#quantify-scrna-seq-reads"><span class="header-section-number">3</span> Quantify scRNA-Seq reads</a></li>
+  <li><a href="#extract-unmapped-reads" id="toc-extract-unmapped-reads" class="nav-link" data-scroll-target="#extract-unmapped-reads"><span class="header-section-number">4</span> Extract unmapped reads</a></li>
+  <li><a href="#dealing-with-unmaped-reads" id="toc-dealing-with-unmaped-reads" class="nav-link" data-scroll-target="#dealing-with-unmaped-reads"><span class="header-section-number">5</span> Dealing with unmaped reads</a></li>
+  <li><a href="#de-novo-transcriptome-assembly" id="toc-de-novo-transcriptome-assembly" class="nav-link" data-scroll-target="#de-novo-transcriptome-assembly"><span class="header-section-number">6</span> De novo transcriptome assembly</a></li>
+  <li><a href="#add-the-egfp-mrna-sequence-to-the-mm39-gtf-and-fasta-files" id="toc-add-the-egfp-mrna-sequence-to-the-mm39-gtf-and-fasta-files" class="nav-link" data-scroll-target="#add-the-egfp-mrna-sequence-to-the-mm39-gtf-and-fasta-files"><span class="header-section-number">7</span> Add the EGFP mRNA sequence to the mm39 GTF and FASTA files</a></li>
+  <li><a href="#construct-the-modified-mm39-reference-again" id="toc-construct-the-modified-mm39-reference-again" class="nav-link" data-scroll-target="#construct-the-modified-mm39-reference-again"><span class="header-section-number">8</span> Construct the modified mm39 reference again</a></li>
+  <li><a href="#quantify-scrna-seq-reads-again" id="toc-quantify-scrna-seq-reads-again" class="nav-link" data-scroll-target="#quantify-scrna-seq-reads-again"><span class="header-section-number">9</span> Quantify scRNA-Seq reads again</a></li>
+  <li><a href="#standard-scrna-seq-analysis-via-seurat" id="toc-standard-scrna-seq-analysis-via-seurat" class="nav-link" data-scroll-target="#standard-scrna-seq-analysis-via-seurat"><span class="header-section-number">10</span> Standard scRNA-Seq analysis via <code>Seurat</code></a>
+  <ul>
+  <li><a href="#method-1" id="toc-method-1" class="nav-link" data-scroll-target="#method-1"><span class="header-section-number">10.1</span> Method 1</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/edit/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/blob/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+</nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page" id="quarto-document-content">
+<main class="content quarto-banner-title-block column-page-right" id="quarto-document-content">
 
 
 
 
 
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>In this doc, we try to identify what cell types those EGFP-positive cells may be via the following steps:</p>
+<ol type="1">
+<li><p>Construct the mm39 reference via <code>mobivision mkindex</code> for <code>mobivision quantify</code>.</p></li>
+<li><p>Quantify paired-end reads via <code>mobivision quantify</code> against the mm39 refernece.</p></li>
+</ol>
+<p><strong>Note</strong>: in this study, each scRNA-Seq sample contains two FASTQ files (i.e., R1 and R2), where R1 mainly contains cell barcodes and UMIs, and R2 mainly contains insert fragments. <code>mobivision quantify</code> only uses R1 to extract cell barcodes and UMIs, and uses R2 to quantify gene expressions.</p>
+<ol start="3" type="1">
+<li><p>Extract unmapped reads from aligned BAM file using <code>samtools view</code>.</p></li>
+<li><p>For unmapped reads, write those 3’ poly-A-removed reads satisfying the minimum length threshold to a FASTQ file.</p></li>
+<li><p>Perform de novo transcriptome assembly using <code>Trinity</code> to construct the EGFP mRNA sequence.</p></li>
+<li><p>Add the constructed EGFP mRNA sequence to both annotation GTF file and genome FASTA file of mm39.</p></li>
+<li><p>Construct the mm39 reference with the EGFP mRNA sequence via <code>mobivision mkindex</code> again.</p></li>
+<li><p>Quantify paired-end reads via <code>mobivision quantify</code> against the mm39 refernece with the EGFP mRNA sequence again.</p></li>
+<li><p>Downstream analyses using <code>Seurat</code>, etc.</p></li>
+</ol>
+</section>
+<section id="construct-the-mm39-reference" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="construct-the-mm39-reference"><span class="header-section-number">2</span> Construct the mm39 reference</h2>
+<pre class="{bash}"><code># make mobivision available in the current Bash session
+source /data/softwares/mobivision-v3.2/source.sh
+
+# make index
+nohup mobivision mkindex -n mobivision_GRCm39_pri_gencode_vM37_pri_basic -f /data/biodatabase/species/mm10/genome/genome/GRCm39.primary_assembly.genome.fa -g /data/biodatabase/species/mm10/genome/anno/gencode.vM37.primary_assembly.basic.annotation.gtf &amp;&gt; run_mobivision_mkindex.log &amp;
+
+echo $! &gt; mobivision_mkindex.pid
+if kill -0 $(cat mobivision_mkindex.pid) 2&gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi
+if ps -p $(cat mobivision_mkindex.pid) &gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi</code></pre>
+</section>
+<section id="quantify-scrna-seq-reads" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="quantify-scrna-seq-reads"><span class="header-section-number">3</span> Quantify scRNA-Seq reads</h2>
+<pre class="{bash}"><code># make mobivision available in the current Bash session
+source /data/softwares/mobivision-v3.2/source.sh
+
+# quantify reads
+nohup mobivision quantify -i /data/biodatabase/species/mm10/indices/mobivision_GRCm39_pri_gencode_vM37_pri_basic -t 90 -f /data/users/dell/hth_neurons_innervate_breast/JZ25092505-250522-HY-250522-HY_combined -o /data/users/dell/hth_neurons_innervate_breast/analysis_results &amp;&gt; run_mobivision_quantify.log &amp;
+
+echo $! &gt; mobivision_quantify.pid
+if kill -0 $(cat mobivision_quantify.pid) 2&gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi
+if ps -p $(cat mobivision_quantify.pid) &gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi</code></pre>
+</section>
+<section id="extract-unmapped-reads" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="extract-unmapped-reads"><span class="header-section-number">4</span> Extract unmapped reads</h2>
+<pre class="{bash}"><code># extract unmapped reads from aligned BAM file
+samtools view -f 4 -@ 80 -b HTH20250618_Aligned.sort.bam -o HTH20250618_unmapped.bam</code></pre>
+</section>
+<section id="dealing-with-unmaped-reads" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="dealing-with-unmaped-reads"><span class="header-section-number">5</span> Dealing with unmaped reads</h2>
+<div id="d8770627" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract reads from the unmapped BAM file and</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># write those 3' poly-A-removed reads</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># satisfying the minimum length threshold to a FASTQ file</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrames</span>, <span class="bu">FASTX</span>, <span class="bu">CodecZlib</span>, <span class="bu">XAM</span>, <span class="bu">YRUtils</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>unmapped_bam_file <span class="op">=</span> <span class="st">"/data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_only_mm39/HTH20250618_outs/HTH20250618_unmapped.bam"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># FASTQ quality scheme (64/33)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>quality_scheme <span class="op">=</span> <span class="fl">33</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3' poly-A sequence longer than the length specified below will be trimmed</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># its trailing sequence will also be trimmed</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>min_polya_len <span class="op">=</span> <span class="fl">15</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># those trimmed reads longer than the length specified below will be kept</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>min_read_len <span class="op">=</span> <span class="fl">20</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># due to the fact that there are two or more potential poly-A sequences in a single read</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># and those may not be from the gene body itself</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># this may confuse the de novo transcriptome assembly</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># so we can trim them all via more rounds</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>trim_round <span class="op">=</span> <span class="fl">3</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>sambamba_path <span class="op">=</span> YRUtils.ShellUtils.<span class="fu">find_cmd</span>(<span class="st">"sambamba"</span>; return_nothing<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>YRUtils.ShellUtils.<span class="fu">cmd_valid</span>(<span class="fu">Cmd</span>(<span class="fu">string</span>.([sambamba_path, <span class="st">"--version"</span>])); return_false<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> !<span class="fu">isfile</span>(<span class="fu">string</span>(unmapped_bam_file, <span class="st">".bai"</span>))</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    idx_cmd <span class="op">=</span> <span class="fu">Cmd</span>(<span class="fu">string</span>.([<span class="st">"sambamba"</span>, <span class="st">"index"</span>, <span class="st">"-t"</span>, <span class="st">"80"</span>, unmapped_bam_file]))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@info</span> <span class="fu">string</span>(<span class="st">"running "</span>, idx_cmd, <span class="st">" ..."</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">run</span>(idx_cmd; wait<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@info</span> <span class="fu">string</span>(<span class="st">"running "</span>, idx_cmd, <span class="st">" done!"</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co"># remove poly-A sequences with lengths &gt;= 15bp for up to n rounds</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># in each round, the longest poly-A sequence (with rightmost precedence) and its trailing sequence are removed</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_offset</span>(df<span class="op">::</span><span class="dt">DataFrame</span>, n<span class="op">::</span><span class="dt">Int</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> <span class="fu">sort</span>(df, [<span class="fu">order</span>(<span class="op">:</span>match_length; rev<span class="op">=</span><span class="cn">true</span>), <span class="fu">order</span>(<span class="op">:</span>match_offset; rev<span class="op">=</span><span class="cn">true</span>)])</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        offset <span class="op">=</span> df[<span class="fl">1</span>, <span class="op">:</span>match_offset]</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        df <span class="op">=</span> <span class="fu">filter</span>(<span class="op">:</span>match_offset <span class="op">=&gt;</span> x <span class="op">-&gt;</span> x <span class="op">&lt;</span> offset, df)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">isempty</span>(df)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> offset</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> offset</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co"># remove leading and trailing Ns</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">trim_n</span>(seq_str<span class="op">::</span><span class="dt">String</span>, qual_str<span class="op">::</span><span class="dt">String</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    lead_m <span class="op">=</span> <span class="fu">match</span>(<span class="st">r"^N</span><span class="sc">+</span><span class="st">"</span>, seq_str)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> !<span class="fu">isnothing</span>(lead_m)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        left_pos <span class="op">=</span> <span class="fu">length</span>(lead_m.match) <span class="op">+</span> <span class="fl">1</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        seq_str <span class="op">=</span> seq_str[left_pos<span class="op">:</span><span class="kw">end</span>]</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        qual_str <span class="op">=</span> qual_str[left_pos<span class="op">:</span><span class="kw">end</span>]</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    trail_m <span class="op">=</span> <span class="fu">match</span>(<span class="st">r"N</span><span class="sc">+$</span><span class="st">", </span>seq_str<span class="ch">)</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> !<span class="fu">isnothing</span>(trail_m)</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        right_pos <span class="op">=</span> trail_m.offset <span class="op">-</span> <span class="fl">1</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        seq_str <span class="op">=</span> seq_str[<span class="fl">1</span><span class="op">:</span>right_pos]</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        qual_str <span class="op">=</span> qual_str[<span class="fl">1</span><span class="op">:</span>right_pos]</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (seq_str, qual_str)</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="fu">FASTQWriter</span>(<span class="fu">GzipCompressorStream</span>(<span class="fu">open</span>(<span class="fu">replace</span>(unmapped_bam_file, <span class="st">r"bam</span><span class="sc">$</span><span class="st">" =&gt; "</span>fastq<span class="sc">.</span><span class="st">gz"</span>), <span class="st">"w"</span>))) <span class="cf">do</span> writer</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    reader <span class="op">=</span> <span class="fu">open</span>(BAM.Reader, unmapped_bam_file; index<span class="op">=</span><span class="fu">string</span>(unmapped_bam_file, <span class="st">".bai"</span>))</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    record <span class="op">=</span> BAM.<span class="fu">Record</span>()</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> !<span class="fu">eof</span>(reader)</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>        <span class="fu">empty!</span>(record)</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>        <span class="fu">read!</span>(reader, record)</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        seq_str <span class="op">=</span> <span class="fu">string</span>(BAM.<span class="fu">sequence</span>(record))</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        qual_str <span class="op">=</span> <span class="fu">join</span>(<span class="fu">Char</span>.(BAM.<span class="fu">quality</span>(record) <span class="op">.+</span> quality_scheme))</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>        ms <span class="op">=</span> <span class="fu">collect</span>(<span class="fu">eachmatch</span>(<span class="fu">Regex</span>(<span class="fu">string</span>(<span class="st">"A{"</span>, min_polya_len, <span class="st">",}"</span>)), seq_str; overlap<span class="op">=</span><span class="cn">false</span>))</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> !<span class="fu">isempty</span>(ms)</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>            df <span class="op">=</span> <span class="fu">DataFrame</span>([(match_length<span class="op">=</span><span class="fu">length</span>(m.match), match_offset<span class="op">=</span>m.offset) for m <span class="kw">in</span> ms])</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>            offset <span class="op">=</span> <span class="fu">get_offset</span>(df, trim_round)</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>            seq_str, qual_str <span class="op">=</span> seq_str[<span class="fl">1</span><span class="op">:</span>(offset<span class="op">-</span><span class="fl">3</span>)], qual_str[<span class="fl">1</span><span class="op">:</span>(offset<span class="op">-</span><span class="fl">3</span>)]</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>        seq_str, qual_str <span class="op">=</span> <span class="fu">trim_n</span>(seq_str, qual_str)</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">length</span>(seq_str) <span class="op">&gt;=</span> min_read_len</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>            <span class="fu">write</span>(writer, <span class="fu">FASTQRecord</span>(</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>                BAM.<span class="fu">tempname</span>(record),</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>                seq_str,</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>                qual_str,</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>            ))</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>    <span class="fu">close</span>(reader)</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="de-novo-transcriptome-assembly" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="de-novo-transcriptome-assembly"><span class="header-section-number">6</span> De novo transcriptome assembly</h2>
+<p>Before running <code>Trinity</code>, please make sure what is your RNA-Seq library type (e.g., stranded vs.&nbsp;non-stranded).</p>
+<ol type="1">
+<li>Run <code>Trinity</code></li>
+</ol>
+<pre class="{bash}"><code># run Trinity to perform de novo transcriptome assembly
+singularity exec -e /data/softwares/trinity_v2.15.2/trinityrnaseq.v2.15.2.simg Trinity \
+--seqType fq --CPU 100 --SS_lib_type F --max_memory 500G \
+--single /data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_only_mm39/HTH20250618_outs/HTH20250618_unmapped.fastq.gz \
+--output /data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_only_mm39/HTH20250618_outs/trinity_out_dir</code></pre>
+<ol start="2" type="1">
+<li>Extract candidate isoforms based on partial EGFP fragments</li>
+</ol>
+<div id="6cb0ed0f" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract candidate isoforms based on PRV531 fragments</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">FASTX</span>, <span class="bu">BioAlignments</span>, <span class="bu">BioSequences</span>, <span class="bu">YRUtils</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>plasmid_fa_file <span class="op">=</span> <span class="st">"/data/users/dell/hth_neurons_innervate_breast/prv531_plasmid_info/fragments.fasta"</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>trinity_fa_file <span class="op">=</span> <span class="st">"/data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_only_mm39/HTH20250618_outs/trinity_out_dir.Trinity.fasta"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the minimum length of consecutive matches</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>min_len <span class="op">=</span> <span class="fl">20</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plasmid_vec <span class="op">=</span> <span class="fu">FASTAReader</span>(<span class="fu">open</span>(plasmid_fa_file)) <span class="cf">do</span> reader</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    vec <span class="op">=</span> <span class="dt">Tuple</span>{<span class="dt">String</span>,<span class="dt">String</span>}[]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    record <span class="op">=</span> <span class="fu">FASTARecord</span>()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> !<span class="fu">eof</span>(reader)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">empty!</span>(record)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">read!</span>(reader, record)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">push!</span>(vec, (FASTX.<span class="fu">identifier</span>(record), FASTX.<span class="fu">sequence</span>(record)))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> vec</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>score_model <span class="op">=</span> <span class="fu">AffineGapScoreModel</span>(EDNAFULL; gap_open<span class="op">=-</span><span class="fl">5</span>, gap_extend<span class="op">=-</span><span class="fl">2</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>aln_dict <span class="op">=</span> <span class="fu">FASTAReader</span>(<span class="fu">open</span>(trinity_fa_file)) <span class="cf">do</span> reader</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    dict <span class="op">=</span> <span class="fu">Dict</span><span class="dt">{String,Vector{String}}</span>()</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    record <span class="op">=</span> <span class="fu">FASTARecord</span>()</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> !<span class="fu">eof</span>(reader)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">empty!</span>(record)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">read!</span>(reader, record)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (plasmid_id, plasmid_seq) <span class="kw">in</span> plasmid_vec</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            res <span class="op">=</span> <span class="fu">pairalign</span>(<span class="fu">LocalAlignment</span>(), plasmid_seq, FASTX.<span class="fu">sequence</span>(record), score_model)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            aln <span class="op">=</span> <span class="fu">alignment</span>(res)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            match_flag <span class="op">=</span> <span class="cn">false</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> m <span class="kw">in</span> <span class="fu">eachmatch</span>(<span class="st">r"</span><span class="ch">(?</span><span class="st">&lt;num&gt;</span><span class="sc">\d+</span><span class="ch">)(?</span><span class="st">&lt;op&gt;</span><span class="ch">[^</span><span class="sc">\d</span><span class="ch">])</span><span class="st">"</span>, <span class="fu">cigar</span>(<span class="fu">alignment</span>(aln)))</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> m[<span class="st">"op"</span>] <span class="op">==</span> <span class="st">"="</span> <span class="op">&amp;&amp;</span> <span class="fu">parse</span>(<span class="dt">Int</span>, m[<span class="st">"num"</span>], base<span class="op">=</span><span class="fl">10</span>) <span class="op">&gt;=</span> min_len</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>                    dict[<span class="fu">string</span>(plasmid_id, <span class="st">" vs. "</span>, FASTX.<span class="fu">description</span>(record))] <span class="op">=</span> [<span class="fu">join</span>([x for (x, _) <span class="kw">in</span> aln]), <span class="fu">join</span>([y for (_, y) <span class="kw">in</span> aln])]</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>                    match_flag <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>                <span class="cf">end</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">end</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> match_flag</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">end</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dict</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>YRUtils.BioUtils.<span class="fu">show_align</span>(aln_dict, <span class="fu">string</span>(trinity_fa_file, <span class="st">".html"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol start="3" type="1">
+<li>Format FASTA sequence</li>
+</ol>
+<div id="de19841e" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># format a sequence into fixed-width sub-sequences</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>id <span class="op">=</span> <span class="st">"prv531_plasmid_mRNA"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="st">"GGTCGCTGCGCGCTGCCTTCGCCCCGTGCCCCGCTCCGCCGCCGCCTCGCGCCGCCCGCCCCGGCTCTGACTGACCGCGTTACTCCCACAGCGCACCATGGAGAACCCTGGACCTATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAATAGNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNAATCAACCTCTGGATTACAAAATTTGTGAAAGATTGACTGGTATTCTTAACTATGTTGCTCCTTTTACGCTATGTGGATACGCTGCTTTAATGCCTTTGTATCATGCTATTGCTTCCCGTATGGCTTTCATTTTCTCCTCCTTGTATAAATCCTGGTTGCTGTCTCTTTATGAGGAGTTGTGGCCCGTTGTCAGGCAACGTGGCGTGGTGTGCACTGTGTTTGCTGACGCAACCCCCACTGGTTGGGGCATTGCCACCACCTGTCAGCTCCTTTCCGGGACTTTCGCTTTCCCCCTCCCTATTGCCACGGCGGAACTCATCGCCGCCTGCCTTGCCCGCTGCTGGACAGGGGCTCGGCTGTTGGGCACTGACAATTCCGTGGTGTTGTCGGGGAAATCATCGTCCTTTCCTTGGCTGCTCGCCTGTGTTGCCACCTGGATTCTGCGCGGGACGTCCTTCTGCTACGTCCCTTCGGCCCTCAATCCAGCGGACCTTCCTTCCCGCGGCCTGCTGCCGGCTCTGCGGCCTCTTCCGCGTCTTCGCCTTCGCCCTCAGACGAGTCGGATCTCCCTTTGGGCCGCCTCCCCGCAGGGCCCGTTTAAACCCGCTGATCAGCCTCGACTGTGCCTTCTAGTTGCCAGCCATCTGTTGTTTGCCCCTCCCCCGTGCCTTCCTTGACCCTGGAAGGTGCCACTCCCACTGTCCTTTCCTAATAAAATGAGGAAATTGCATCGCATTGTCTGAGTAGGTGTCATTCTATTCTGGGGGGTGGGGTGGGGCAGGACAGCAAGGGGGAGGATTGGGAAGACAATAGCAGGCATGCTGGGGATGCGGTGGGCTCTATGG"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>line_width <span class="op">=</span> <span class="fl">60</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>output_file <span class="op">=</span> <span class="st">"/data/users/dell/hth_neurons_innervate_breast/temp/prv531_plasmid_mRNA.fasta"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>s_vec <span class="op">=</span> <span class="fu">collect</span>(<span class="bu">Base</span>.<span class="bu">Iterators</span>.<span class="fu">partition</span>(s, line_width))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">pushfirst!</span>(s_vec, <span class="fu">string</span>(<span class="st">"&gt;"</span>, id))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">open</span>(output_file, <span class="st">"w"</span>) <span class="cf">do</span> io</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(io, <span class="fu">join</span>(s_vec, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="add-the-egfp-mrna-sequence-to-the-mm39-gtf-and-fasta-files" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="add-the-egfp-mrna-sequence-to-the-mm39-gtf-and-fasta-files"><span class="header-section-number">7</span> Add the EGFP mRNA sequence to the mm39 GTF and FASTA files</h2>
+<pre class="{bash}"><code># add prv531 anntation info and genome sequence to mm39 anntation GTF file and genome FASTA file
+echo -e 'prv531_plasmid_mRNA\tTRINITY\texon\t1\t838\t.\t+\t.\tgene_id "prv531"; transcript_id "prv531.1"; gene_name "prv531"; gene_type "protein_coding"; exon_number 1; exon_id "prv531.1";' &gt; prv531_plasmid_mRNA.gtf
+echo -e 'prv531_plasmid_mRNA\tTRINITY\texon\t889\t1734\t.\t+\t.\tgene_id "prv531"; transcript_id "prv531.1"; gene_name "prv531"; gene_type "protein_coding"; exon_number 2; exon_id "prv531.2";' &gt;&gt; prv531_plasmid_mRNA.gtf
+
+mv gencode.vM37.primary_assembly.basic.annotation.gtf gencode.vM37.primary_assembly.basic.annotation.prv531.gtf
+mv GRCm39.primary_assembly.genome.fa GRCm39.primary_assembly.genome.prv531.fa
+
+cat prv531_plasmid_mRNA.gtf &gt;&gt; gencode.vM37.primary_assembly.basic.annotation.prv531.gtf
+cat prv531_plasmid_mRNA.fasta &gt;&gt; GRCm39.primary_assembly.genome.prv531.fa</code></pre>
+</section>
+<section id="construct-the-modified-mm39-reference-again" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="construct-the-modified-mm39-reference-again"><span class="header-section-number">8</span> Construct the modified mm39 reference again</h2>
+<pre class="{bash}"><code># make mobivision available in the current Bash session
+source /data/softwares/mobivision-v3.2/source.sh
+
+# make index
+nohup mobivision mkindex -n mobivision_GRCm39_pri_gencode_vM37_pri_basic_prv531 -f /data/biodatabase/species/mm10/genome/genome/GRCm39.primary_assembly.genome.prv531.fa.gz -g /data/biodatabase/species/mm10/genome/anno/gencode.vM37.primary_assembly.basic.annotation.prv531.gtf.gz &amp;&gt; run_mobivision_mkindex.log &amp;
+
+echo $! &gt; mobivision_mkindex.pid
+if kill -0 $(cat mobivision_mkindex.pid) 2&gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi
+if ps -p $(cat mobivision_mkindex.pid) &gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi</code></pre>
+</section>
+<section id="quantify-scrna-seq-reads-again" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="quantify-scrna-seq-reads-again"><span class="header-section-number">9</span> Quantify scRNA-Seq reads again</h2>
+<pre class="{bash}"><code># make mobivision available in the current Bash session
+source /data/softwares/mobivision-v3.2/source.sh
+
+# quantify reads
+nohup mobivision quantify -i /data/biodatabase/species/mm10/indices/mobivision_GRCm39_pri_gencode_vM37_pri_basic_prv531 -t 90 -f /data/users/dell/hth_neurons_innervate_breast/JZ25092505-250522-HY-250522-HY_combined -o /data/users/dell/hth_neurons_innervate_breast/analysis_results &amp;&gt; run_mobivision_quantify.log &amp;
+
+echo $! &gt; mobivision_quantify.pid
+if kill -0 $(cat mobivision_quantify.pid) 2&gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi
+if ps -p $(cat mobivision_quantify.pid) &gt; /dev/null; then echo "The process is still running"; else echo "The process has finished"; fi</code></pre>
+</section>
+<section id="standard-scrna-seq-analysis-via-seurat" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="standard-scrna-seq-analysis-via-seurat"><span class="header-section-number">10</span> Standard scRNA-Seq analysis via <code>Seurat</code></h2>
+<section id="method-1" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="method-1"><span class="header-section-number">10.1</span> Method 1</h3>
+<p>In the following code, we also try to rescue some EGFP-positive cells from unfiltered cell by gene matrix.</p>
+<pre class="{r}"><code>library(Seurat)
+library(tidyverse)
+library(patchwork)
+library(vroom)
+library(YRUtils)
+
+gtf_file &lt;- "/data/biodatabase/species/mm10/genome/anno/gencode.vM37.primary_assembly.basic.annotation.prv531.gtf.gz"
+cellxgene_dir &lt;- "/data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_with_prv531/HTH20250618_outs/filtered_cell_gene_matrix"
+raw_cellxgene_dir &lt;- "/data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_with_prv531/HTH20250618_outs/raw_cell_gene_matrix"
+output_dir &lt;- "/data/users/dell/hth_neurons_innervate_breast/analysis_results/HTH20250618_with_prv531/seurat_res/with_rescue"
+
+gtf_df &lt;- extract_gene_id_from_gff(gtf_file, "gene")
+gtf_df &lt;- bind_rows(
+    gtf_df,
+    tibble(
+        seqnames = "prv531_plasmid_mRNA", gene_type = "gene",
+        gene_id_without_version = "prv531", gene_version = "1",
+        gene_id = "prv531.1", gene_name = "prv531",
+        gene_biotype = "protein_coding", gene_level = "1"
+    )
+)
+
+counts &lt;- Read10X(cellxgene_dir)
+seu_obj &lt;- CreateSeuratObject(counts = counts, project = "HTH20250618", min.cells = 3, min.features = 200)
+seu_obj[["percent.mt"]] &lt;- PercentageFeatureSet(seu_obj, pattern = "^mt-")
+
+p &lt;- VlnPlot(seu_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3, assay = "RNA", layer = "counts")
+p[[1]] &lt;- p[[1]] + geom_hline(yintercept = c(5500, 6000, 6500, 7000), color = "red", linetype = "dashed")
+p[[2]] &lt;- p[[2]] + geom_hline(yintercept = c(25000, 30000, 35000), color = "red", linetype = "dashed")
+p[[3]] &lt;- p[[3]] + geom_hline(yintercept = c(7.5, 12.5, 15), color = "red", linetype = "dashed")
+ppreview(p, file = file.path(output_dir, "qc_violin.raw.pdf"))
+
+p1 &lt;- FeatureScatter(seu_obj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+p2 &lt;- FeatureScatter(seu_obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+ppreview(p1 | p2, file = file.path(output_dir, "qc_scatter.raw.pdf"))
+
+seu_obj &lt;- subset(seu_obj, subset = nFeature_RNA &gt;= 200 &amp; nFeature_RNA &lt;= 6000 &amp; nCount_RNA &gt;= 200 &amp; nCount_RNA &lt;= 30000 &amp; percent.mt &lt;= 15)
+
+p &lt;- VlnPlot(seu_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3, assay = "RNA", layer = "counts")
+ppreview(p, file = file.path(output_dir, "qc_violin.filtered.pdf"))
+
+p1 &lt;- FeatureScatter(seu_obj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+p2 &lt;- FeatureScatter(seu_obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+ppreview(p1 | p2, file = file.path(output_dir, "qc_scatter.filtered.pdf"))
+
+prv531_expr_mat &lt;- LayerData(seu_obj, assay = "RNA", layer = "counts", features = "prv531")
+prv531_pos_cells &lt;- colnames(prv531_expr_mat)[prv531_expr_mat["prv531", ] &gt; 0]
+seu_obj[["cell_bc"]] &lt;- row.names(seu_obj[[]])
+seu_obj[["prv531_pos"]] &lt;- as.character(seu_obj$cell_bc %in% prv531_pos_cells)
+
+# rescue prv531-positive cells &gt;&gt;&gt;
+raw_counts &lt;- Read10X(raw_cellxgene_dir)
+raw_counts &lt;- raw_counts[, colnames(raw_counts)[raw_counts["prv531", ] &gt; 0]]
+raw_counts &lt;- raw_counts[, !(colnames(raw_counts) %in% prv531_pos_cells)]
+raw_counts &lt;- raw_counts[rowSums(raw_counts) &gt; 0, ]
+raw_seu_obj &lt;- CreateSeuratObject(counts = raw_counts, project = "HTH20250618_raw", min.cells = 1, min.features = 1)
+raw_seu_obj[["prv531_pos"]] &lt;- "TRUE"
+raw_seu_obj[["percent.mt"]] &lt;- PercentageFeatureSet(raw_seu_obj, pattern = "^mt-")
+
+p &lt;- VlnPlot(raw_seu_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3, assay = "RNA", layer = "counts")
+ppreview(p, file = file.path(output_dir, "qc_violin.prv531.raw.pdf"))
+
+p1 &lt;- FeatureScatter(raw_seu_obj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+p2 &lt;- FeatureScatter(raw_seu_obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+ppreview(p1 | p2, file = file.path(output_dir, "qc_scatter.prv531.raw.pdf"))
+
+raw_seu_obj &lt;- subset(raw_seu_obj, subset = nCount_RNA &gt;= 50 &amp; nFeature_RNA &gt;= 50 &amp; percent.mt &lt;= 40)
+
+p &lt;- VlnPlot(raw_seu_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3, assay = "RNA", layer = "counts")
+ppreview(p, file = file.path(output_dir, "qc_violin.prv531.filtered.pdf"))
+
+p1 &lt;- FeatureScatter(raw_seu_obj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+p2 &lt;- FeatureScatter(raw_seu_obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+ppreview(p1 | p2, file = file.path(output_dir, "qc_scatter.prv531.filtered.pdf"))
+
+merged_obj &lt;- merge(x = seu_obj, y = raw_seu_obj)
+merged_obj &lt;- JoinLayers(merged_obj)
+merged_obj[["project.prv531_pos"]] &lt;- paste0(merged_obj$orig.ident, ".", merged_obj$prv531_pos)
+seu_obj &lt;- merged_obj
+seu_obj[["cell_bc"]] &lt;- row.names(seu_obj[[]])
+# rescue prv531-positive cells &lt;&lt;&lt;
+
+seu_obj &lt;- NormalizeData(seu_obj, normalization.method = "LogNormalize", scale.factor = 10000)
+seu_obj &lt;- FindVariableFeatures(seu_obj, selection.method = "vst", nfeatures = 2000)
+
+p1 &lt;- VariableFeaturePlot(seu_obj)
+p2 &lt;- LabelPoints(plot = p1, points = head(VariableFeatures(seu_obj), 10), repel = TRUE, xnudge = 0, ynudge = 0)
+ppreview(p1 | p2, file = file.path(output_dir, "hvf_scatter.pdf"))
+
+seu_obj &lt;- ScaleData(seu_obj, features = row.names(seu_obj))
+seu_obj &lt;- RunPCA(seu_obj, features = VariableFeatures(object = seu_obj))
+
+p &lt;- DimPlot(seu_obj, reduction = "pca")
+ppreview(p, file = file.path(output_dir, "pca_scatter.pdf"))
+
+p &lt;- ElbowPlot(seu_obj, ndims = 50, reduction = "pca")
+ppreview(p, file = file.path(output_dir, "elbow_line.pdf"))
+
+p &lt;- DimHeatmap(seu_obj, dims = 1:20, cells = 500, balanced = TRUE)
+p
+
+seu_obj &lt;- FindNeighbors(seu_obj, dims = 1:50, reduction = "pca")
+seu_obj &lt;- FindClusters(seu_obj, resolution = 0.5)
+seu_obj &lt;- FindClusters(seu_obj, resolution = 1)
+seu_obj &lt;- RunUMAP(seu_obj, dims = 1:50, reduction = "pca")
+
+seu_obj$seurat_clusters &lt;- seu_obj$RNA_snn_res.0.5
+resolution &lt;- 0.5
+
+p1 &lt;- DimPlot(seu_obj, reduction = "umap", label = TRUE, group.by = "seurat_clusters")
+# p2 &lt;- DimPlot(seu_obj,
+#     reduction = "umap", label = TRUE, group.by = "seurat_clusters",
+#     cells.highlight = list(prv531.pos = seu_obj$cell_bc[seu_obj$prv531_pos == "TRUE"]),
+#     cols.highlight = "#EE4000", sizes.highlight = 2, alpha = 0.6
+# )
+p2 &lt;- DimPlot(seu_obj,
+    reduction = "umap", label = TRUE, group.by = "seurat_clusters",
+    cells.highlight = list(
+        HTH20250618.TRUE = seu_obj$cell_bc[seu_obj$project.prv531_pos == "HTH20250618.TRUE"],
+        HTH20250618_raw.TRUE = seu_obj$cell_bc[seu_obj$project.prv531_pos == "HTH20250618_raw.TRUE"]
+    ),
+    cols.highlight = c("#EE4000", "#008B8B"), sizes.highlight = 2, alpha = 0.6
+)
+ppreview(p1 | p2, file = file.path(output_dir, paste0("umap_scatter.res_", resolution, ".pdf")))
+
+p1_data &lt;- p1$data %&gt;%
+    mutate(cell_bc = row.names(.)) %&gt;%
+    inner_join(
+        seu_obj[[]] %&gt;%
+            select(cell_bc, nCount_RNA, nFeature_RNA, percent.mt),
+        by = "cell_bc"
+    )
+colors &lt;- c("darkblue", "lightskyblue", "palegreen", "yellow", "orange", "red", "darkred")
+
+p &lt;- ggplot(p1_data, aes(umap_1, umap_2, color = nCount_RNA)) +
+    geom_point() +
+    scale_color_gradientn(colors = colors, trans = "log10") +
+    theme_classic()
+ppreview(p, file = file.path(output_dir, paste0("umap_scatter.nCount_RNA.pdf")))
+
+p &lt;- ggplot(p1_data, aes(umap_1, umap_2, color = nFeature_RNA)) +
+    geom_point() +
+    scale_color_gradientn(colors = colors, trans = "log10") +
+    theme_classic()
+ppreview(p, file = file.path(output_dir, paste0("umap_scatter.nFeature_RNA.pdf")))
+
+p &lt;- ggplot(p1_data, aes(umap_1, umap_2, color = percent.mt)) +
+    geom_point() +
+    scale_color_gradientn(colors = colors) +
+    theme_classic()
+ppreview(p, file = file.path(output_dir, paste0("umap_scatter.percent_mt.pdf")))
+
+# prv531_pos_stat_df &lt;- inner_join(
+#     seu_obj[[]] %&gt;%
+#         group_by(seurat_clusters) %&gt;%
+#         reframe(cluster_n = n()),
+#     filter(seu_obj[[]], prv531_pos == "TRUE") %&gt;%
+#         group_by(seurat_clusters) %&gt;%
+#         reframe(prv531_n = n()),
+#     by = "seurat_clusters"
+# ) %&gt;%
+#     mutate(percent = prv531_n / cluster_n * 100) %&gt;%
+#     arrange(desc(prv531_n), desc(percent))
+prv531_pos_stat_df &lt;- inner_join(
+    seu_obj[[]] %&gt;%
+        group_by(seurat_clusters) %&gt;%
+        reframe(cluster_n = n()),
+    filter(seu_obj[[]], project.prv531_pos %in% c("HTH20250618.TRUE", "HTH20250618_raw.TRUE")) %&gt;%
+        mutate(project.prv531_pos = factor(project.prv531_pos, levels = c("HTH20250618.TRUE", "HTH20250618_raw.TRUE"))) %&gt;%
+        group_by(seurat_clusters, project.prv531_pos) %&gt;%
+        reframe(prv531_n = n()),
+    by = "seurat_clusters"
+) %&gt;%
+    mutate(percent = prv531_n / cluster_n * 100) %&gt;%
+    arrange(seurat_clusters, project.prv531_pos)
+vroom_write(prv531_pos_stat_df, file = file.path(output_dir, paste0("prv531_pos_stat.res_", resolution, ".tsv")))
+
+saveRDS(seu_obj, file = file.path(output_dir, "seurat_obj.to_umap.rds"))</code></pre>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -761,7 +1260,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>   
     <div class="nav-footer-center">
 <p>Powered by <a href="https://quarto.org">Quarto</a></p>
-<div class="toc-actions"><ul><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/edit/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/blob/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/edit/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/blob/main/Blogs/Bioinformatics/posts/scRNA-seq/identify_egfp-positive_cells_via_scrna-seq/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/yr-neurospace/NeuroBorder-WebPageSource/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
