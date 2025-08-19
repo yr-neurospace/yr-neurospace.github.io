@@ -9,7 +9,7 @@
 <meta name="author" content="Rui Yang">
 <meta name="dcterms.date" content="2025-06-25">
 
-<title>kvm/qemu/virt-manager tool chain for virtual machine managing – NeuroBorder</title>
+<title>KVM/QEMU/virt-manager tool chain for virtual machine managing in Linux – NeuroBorder</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -114,6 +114,10 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Bioinformatics</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="../../../../../../Blogs/Biology/index.html">
+ <span class="dropdown-text">Biology</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="../../../../../../Blogs/Galaxy/index.html">
  <span class="dropdown-text">Galaxy</span></a>
   </li>  
@@ -136,7 +140,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-page">
-      <h1 class="title">kvm/qemu/virt-manager tool chain for virtual machine managing</h1>
+      <h1 class="title">KVM/QEMU/virt-manager tool chain for virtual machine managing in Linux</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">linux</div>
                 <div class="quarto-category">kvm</div>
@@ -167,7 +171,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date-modified">June 25, 2025</p>
+        <p class="date-modified">August 10, 2025</p>
       </div>
     </div>
       
@@ -188,6 +192,21 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+<p>To reach nearly native performance for virtual machines (such as Windows) running on Linux, KVM/QEMU/virt-manager tool chain is an outperformed alternative. The three tools play different roles in holding virtual machines on Linux:</p>
+<ol type="1">
+<li>KVM (Kernel-based Virtual Machine)</li>
+</ol>
+<p>KVM, responsible for assigning physical resources (CPU/memory) to virtual machines, is a module of Linux kernel, which uses native CPU virtulization extensions (Intel VT-x/AMD-V) to directly run virtual machines on hardwares to reach nearly native performance, compared to the other scheme, where virtual machines are run in a software on the host Linux system.</p>
+<ol start="2" type="1">
+<li>QEMU (Quick Emulator)</li>
+</ol>
+<p>QEMU, offloading CPU/memory tasks to KVM, is responsible for simulating other devices (such as disk, network adaptor, graphics card), though the QEMU itself can also be run independently to host virtual machines. The latter alternative has a relatively low performance.</p>
+<p>Directly configuring and running virtual machines through KVM/QEMU is somewhat complicated, so virt-manager described below provides an user-friendly GUI to manage KVM/QEMU virtual machines.</p>
+<ol start="3" type="1">
+<li>virt-manager (Virtual Machine Manager)</li>
+</ol>
+<p>virt-manager provides an user-friendly GUI to manage virtual machines. It interacts with KVM/QEMU through libvirt.</p>
+<p>Through the three tools, we can easily configure and run virtual machines on Linux in a nearly native performance way.</p>
 
 
 
